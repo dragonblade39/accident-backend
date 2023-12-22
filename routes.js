@@ -2,7 +2,34 @@ const express = require("express");
 const router = express.Router();
 const mongoose = require("mongoose");
 const Schema = require("./Schema.js");
+const Schema1 = require("./Schema1.js");
 
+router.get("/data", async (req, res, next) => {
+  try {
+    const allRecords = await Schema.find();
+    res.json(allRecords);
+  } catch (error) {
+    console.error(error.message);
+    return res.status(500).send("Internal Server Error");
+  }
+});
+
+router.post("/delete", async (req, res, next) => {
+  const { _id } = req.body;
+
+  try {
+    const deletedRecord = await Schema.findByIdAndDelete(_id);
+
+    if (!deletedRecord) {
+      return res.status(404).send("Record not found");
+    }
+
+    res.json(deletedRecord);
+  } catch (error) {
+    console.error(error.message);
+    return res.status(500).send("Internal Server Error");
+  }
+});
 router.post("/open-link", async (req, res, next) => {
   const { latitude, longitude } = req.body;
   const currentDate = new Date(); // Current date and time
@@ -27,8 +54,6 @@ router.post("/open-link", async (req, res, next) => {
         ),
       },
     });
-
-    // Check if the minutes are the same in the current and last record
     if (
       lastRecord &&
       currentDate.getSeconds() === lastRecord.date.getSeconds()
@@ -46,13 +71,9 @@ router.post("/open-link", async (req, res, next) => {
         },
         date: currentDate,
       });
-
-      // Introduce a delay of 1 second before saving the record
       setTimeout(async () => {
         await newUser.save();
         console.log(lastRecord);
-
-        // Introduce a delay of 1 second before sending the response
         setTimeout(() => {
           return res.send("Accident record created successfully");
         }, 1000);

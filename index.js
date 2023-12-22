@@ -3,6 +3,7 @@ const express = require("express");
 const cors = require("cors");
 const app = express();
 const SL = require("./routes");
+const FL = require("./routes1");
 mongoose.set("strictQuery", true);
 mongoose.connect(
   "mongodb+srv://chethannv:chethan@chethan.kjdlxwb.mongodb.net/Accident",
@@ -22,6 +23,7 @@ app.use(express.json());
 app.use(cors());
 const port = 5500;
 app.use("/data", SL);
+app.use("/history", FL);
 app.listen(port, () => {
   console.log("Server Started on " + port);
 });
